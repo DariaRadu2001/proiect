@@ -8,7 +8,7 @@ export interface IDialog extends PropsWithChildren {
     disabled?: boolean;
     style?: CSSProperties | undefined;
     className?: string | undefined;
-    onClose: () => void;
+    onClose?: () => void;
 }
 
 const RegisterDialog: React.FC<IDialog> = () => {

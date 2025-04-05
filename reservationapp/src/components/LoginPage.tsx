@@ -14,7 +14,7 @@ function LoginPage() {
     const navigate = useNavigate();
 
     const login = () => {
-        console.log('se face login cu ', username, password);
+        localStorage.setItem('username', username);
         navigate('/homepage');
     }
 
@@ -36,7 +36,7 @@ function LoginPage() {
                     </Button>
                 </form>
 
-                <RegisterDialog/>
+                <RegisterDialog />
             </div>
         </>
     );
