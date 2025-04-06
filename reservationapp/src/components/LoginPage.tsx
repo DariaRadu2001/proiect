@@ -6,16 +6,46 @@ import Button from './Button.tsx';
 import Header from './Header.tsx';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
 function LoginPage() {
 
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const navigate = useNavigate();
 
-    const login = () => {
+    const login = async (e: React.FormEvent) => {
         localStorage.setItem('username', username);
-        navigate('/homepage');
+        e.preventDefault(); 
+        try {
+            const res = await axios.post(
+                'https://p601ghon31.execute-api.eu-central-1.amazonaws.com/prod/login',
+                {
+                    username: username,
+                    password: password
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            navigate('/homepage');
+            toast.success("Login successful!");
+            if (res.status === 201) {
+                navigate('/homepage');
+                toast.success("Login successful!");
+            }
+            else if (res.status === 400) {
+                toast.error("Login failed. Please try again.");
+            }
+            else {
+                toast.error("Unexpected response from server. Please try again.");
+            }
+               
+        } catch (err) {
+            toast.error("Login failed. Please try again.");
+        }
     }
 
     return (
@@ -38,6 +68,7 @@ function LoginPage() {
 
                 <RegisterDialog />
             </div>
+            <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
         </>
     );
 }

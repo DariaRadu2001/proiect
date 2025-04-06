@@ -1,11 +1,38 @@
-import Header from './Header.tsx';
-import React, { useState } from 'react';
+﻿import Header from './Header.tsx';
+import React, { useEffect, useState } from 'react';
 import { Reservation }  from "../models/reservation.model.ts";
+import axios from 'axios';
 
 function HomePage() {
     
     const username = localStorage.getItem("username");
-    const reservations: Reservation[] = [];
+    const [reservations, setReservations] = useState<Reservation[]>([]);
+
+    useEffect(() => {
+        const fetchReservations = async () => {
+            try {
+                console.log(username)
+
+                const res = await axios.get('https://p601ghon31.execute-api.eu-central-1.amazonaws.com/prod/reservation', {
+                    params: {
+                        username: username
+                    }
+                });
+
+                if (res.data && typeof res.data.body === "string") {
+                    const parsed = JSON.parse(res.data.body);
+                    setReservations(parsed.data as Reservation[]);
+                    console.log(res);
+                }
+            } catch (err) {
+                console.error('Error fetching reservations:', err);
+            }
+        };
+
+        if (username) {
+            fetchReservations();
+        }
+    }, [username]);
 
     return (
         <>
@@ -21,14 +48,7 @@ function HomePage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {reservations.map((res, index) => (
-                            <tr key={index}>
-                                <td style={styles.tdStyle}>{res.date}</td>
-                                <td style={styles.tdStyle}>{res.time}</td>
-                                <td style={styles.tdStyle}>{res.location}</td>
-                                <td style={styles.tdStyle}>{res.description}</td>
-                            </tr>
-                        ))}
+                        
                     </tbody>
                 </table>
             </div>

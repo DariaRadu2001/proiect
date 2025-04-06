@@ -1,8 +1,9 @@
-import { CSSProperties, PropsWithChildren } from 'react';
+﻿import { CSSProperties, PropsWithChildren } from 'react';
 import Form from './Form.tsx';
 import Button from './Button.tsx';
 import React, { useState } from 'react';
-
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
 export interface IDialog extends PropsWithChildren {
     id?: string;
     disabled?: boolean;
@@ -16,12 +17,30 @@ const RegisterDialog: React.FC<IDialog> = () => {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [password2, setPassword2] = useState<string>('');
+    const [passwordError, setPasswordError] = useState<string>(''); 
     const [email, setEmail] = useState<string>('');
     const [open, setOpen] = useState(false);
 
-    const register = () => {
-         console.log({username, email, password });
-         setOpen(false);
+    const register = async (e: React.FormEvent) => {
+
+        e.preventDefault();
+
+        if (password !== password2) {
+            setPasswordError("Passwords do not match");
+            return;
+        }
+
+        try {
+            const res = await axios.post('https://p601ghon31.execute-api.eu-central-1.amazonaws.com/prod/register', {
+                username: username,  
+                email: email,
+                password: password
+            });
+            toast.success("Registration successful!");
+            setOpen(false);
+        } catch (err) {
+            toast.error("Registration failed. Please try again.");
+        }
     }
 
     return (
@@ -44,13 +63,17 @@ const RegisterDialog: React.FC<IDialog> = () => {
                             onChange={e => setPassword(e.target.value)}/>
                         <label style={styles.label}>Password Again:</label>
                         <Form value={password2} required={true} type="password"
-                            onChange={e => setPassword2(e.target.value)}/>
+                            onChange={e => setPassword2(e.target.value)} />
+                        {passwordError && (
+                            <p style={{ color: 'red', marginTop: '4px' }}>{passwordError}</p>
+                        )}
                         <Button>
                             Register
                         </Button>
                     </form>
                 </div>
             )}
+            <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
         </>
     );
 }

@@ -1,7 +1,9 @@
-import Form from './Form.tsx';
+﻿import Form from './Form.tsx';
 import Button from './Button.tsx';
 import Header from './Header.tsx';
 import React, { useState } from 'react';
+import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
 
 function AddReservationPage() {
 
@@ -11,7 +13,23 @@ function AddReservationPage() {
     const [location, setLocation] = useState<string>('');
     const [description, setDescription] = useState<string>('');
 
-    const addReservation = () => {  }
+    const addReservation = async (e: React.FormEvent) => {
+
+        e.preventDefault();
+        console.log(username, date, time, location, description)
+        try {
+            const res = await axios.post('https://p601ghon31.execute-api.eu-central-1.amazonaws.com/prod/reservation', {
+                username: username,
+                date: date,
+                time: time,
+                location: location,
+                description: description
+            });
+            toast.success("Reservation added successfuly!");
+        } catch (err) {
+            toast.error("The process failed. Please try again.");
+        }
+    }
 
     return (
         <>
@@ -32,10 +50,12 @@ function AddReservationPage() {
                     <Form value={description} required={true} type="text"
                         onChange={e => setDescription(e.target.value)} />
                     <Button>
-                        Add Resrvation
+                        Add Reservation
                     </Button>
                 </form>
             </div>
+
+            <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
         </>
     );
 }
